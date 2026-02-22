@@ -8,4 +8,6 @@ All Planetary Data Is Pre-Loaded Into Lists And Dictionaries Before The Animatio
 If Any Variable Is Changed Such As Location On Earth, Start Time, Time Duration, Or Time Increment, All Planetary Data Will Load Again.
 Just Keep In Mind How Many Data Points Can Be Generated. If You Are Looking For A Certain Time That Somethig Happens, It's Best To Start With
 A Large Time Increment And Then Narrow It Down Using Smaller Time Durations and Time Increments.
+You May Also Need Microsoft Visual C++ Redistributable To Create An Executable.
+Get It Here. https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170
 Hope You Enjoy!
