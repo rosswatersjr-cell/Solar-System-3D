@@ -25,6 +25,7 @@ import json
 import sys
 import gc
 # solar_system_ephemeris requires jplephem installed
+# pytest Also Has To Be Installed
 # Important To Note That Ursina Y And Z Axis Are Reversed For Using Astropy. Y=Z, Z=Y
 version="2026.02.22"
 
@@ -1066,3 +1067,4 @@ if __name__ == '__main__':
     window.color = color.black
     action = Our_Solar_System()
     app.run()
+
