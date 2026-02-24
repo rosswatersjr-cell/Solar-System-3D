@@ -27,8 +27,7 @@ import gc
 # solar_system_ephemeris requires jplephem installed
 # pytest Also Has To Be Installed
 # Important To Note That Ursina Y And Z Axis Are Reversed For Using Astropy. Y=Z, Z=Y
-version="2026.02.22"
-
+version="2026.02.24"
 def show_message_box(title, style, message):
     MB_YESNO = 0x00000004  # Style for Yes and No buttons
     IDYES = 6              # Return value if Yes is clicked
@@ -40,59 +39,59 @@ def show_message_box(title, style, message):
     elif style=="retry":style=win32con.MB_ABORTRETRYIGNORE | win32con.MB_ICONHAND
     elif style=="asterisk":style=win32con.MB_ICONASTERISK
     ctypes.windll.user32.MessageBoxW(None, message,  title, style)
-def download_iers_data(stop_event):
+def download_iers_data():
     try:
-        if getattr(sys, 'frozen', False):
-            iers_a=Path("_internal/astropy_iers_data/data/finals2000A.all")
-            iers_b=Path("_internal/astropy_iers_data/data/eopc04.1962-now")
-            IERS_A_Path=os.path.join(home_dir, iers_a)
-            IERS_B_Path=os.path.join(home_dir, iers_b)
-            path_list=[IERS_B_Path, IERS_A_Path]
-            home_dir = os.path.dirname(sys.executable)
-            completed=False
-            try:
-                while not stop_event and completed==False:
-                    for index, item in enumerate(path_list):
-                        if os.path.exists(item):os.remove(item)# Delete The Original iers file in astropy And ReCreate 
-                        if item==IERS_A_Path:response = requests.get(IERS_A_URL, stream=True)
-                        elif item==IERS_B_Path:response = requests.get(IERS_B_URL, stream=True)
-                        else:break
-                        response.raise_for_status()  # Raise an exception for bad status codes
-                        with open(item, 'wb') as f:
-                            for chunk in response.iter_content(chunk_size=8192):
-                                f.write(chunk)
-                        clear_download_cache()# Place The New Data Into Cache
-                        if item==IERS_A_Path:
-                            download_file(IERS_A_URL, cache='update', timeout=30, show_progress=False)
-                            IERS_A.open()
-                            stop_event.set()
-                            completed=True
-                        elif item==IERS_B_Path:
-                            download_file(IERS_B_URL, cache='update', timeout=30, show_progress=False)
-                            IERS_B.open()
-                        else:break
-                        msg1="IERS-A And IERS-B Files Have Been Sucessfully Updated!\n"
-                        msg2="These Files Include Earth Orientation Parameters (EOP).\n"
-                        msg3="Also Includes Daily Data For Polar Motion, Universal\n"
-                        msg4="Time (UT1-UTC), And Celestial Pole Offsets."
-                        msg=msg1+msg2+msg3+msg4
-                        show_message_box("Download IERS Data", "info", msg)
-                        return
-                iers_thread.join(timeout=2.0)        
-            except requests.exceptions.RequestException as e:
-                msg=f"Error: {e}"
-                show_message_box("Downloading IERS Data Failure", "error", msg)
-                return
+        iers_a=Path("_internal/astropy_iers_data/data/finals2000A.all")
+        iers_b=Path("_internal/astropy_iers_data/data/eopc04.1962-now")
+        home_dir = os.path.dirname(sys.executable)
+        IERS_A_Path=os.path.join(home_dir, iers_a)
+        IERS_B_Path=os.path.join(home_dir, iers_b)
+        path_list=[IERS_B_Path, IERS_A_Path]
+        try:
+            while not iers_stop:
+                for item in enumerate(path_list):
+                    if os.path.exists(item):os.remove(item)# Delete The Original iers file in astropy And ReCreate 
+                    if item==IERS_A_Path:response = requests.get(IERS_A_URL, stream=True)
+                    elif item==IERS_B_Path:response = requests.get(IERS_B_URL, stream=True)
+                    else:break
+                    response.raise_for_status()  # Raise an exception for bad status codes
+                    with open(item, 'wb') as f:
+                        for chunk in response.iter_content(chunk_size=8192):
+                            f.write(chunk)
+                    clear_download_cache()# Place The New Data Into Cache
+                    if item==IERS_A_Path:
+                        download_file(IERS_A_URL, cache='update', timeout=30, show_progress=False)
+                        IERS_A.open()
+                        iers_stop.set()
+                    elif item==IERS_B_Path:
+                        download_file(IERS_B_URL, cache='update', timeout=30, show_progress=False)
+                        IERS_B.open()
+                    else:break
+                    msg1="IERS-A And IERS-B Files Have Been Sucessfully Updated!\n"
+                    msg2="These Files Include Earth Orientation Parameters (EOP).\n"
+                    msg3="Also Includes Daily Data For Polar Motion, Universal\n"
+                    msg4="Time (UT1-UTC), And Celestial Pole Offsets."
+                    msg=msg1+msg2+msg3+msg4
+                    show_message_box("Download IERS Data", "info", msg)
+                    return
+            iers_thread.join(timeout=2.0)        
+        except requests.exceptions.RequestException as e:
+            msg=f"Error: {e}"
+            show_message_box("Downloading IERS Data Failure", "error", msg)
+            return
     except Exception as e:
         return f"Error: {e}"
 def download_iers():
     try:
-        global iers_thread
-        iers_stop = threading.Event()
-        requests.get("https://www.google.com", timeout=7)# Check Internet Connection
-        iers_thread = threading.Thread(target=download_iers_data, args=(iers_stop))
-        iers_thread.daemon = True # Allows the application to close even if the thread is running
-        iers_thread.start()
+        if getattr(sys, 'frozen', False):
+            requests.get("https://www.google.com", timeout=7)# Check Internet Connection
+            global iers_stop
+            iers_stop = threading.Event()
+            global iers_thread
+            iers_thread = threading.Thread(target=download_iers_data)
+            iers_thread.daemon = True # Allows the application to close even if the thread is running
+            iers_thread.start()
+        else:return    
     except Exception as e:
         msg1="Maybe No Internet Connection!\n"
         msg2=f"Error: {e}"
@@ -103,7 +102,7 @@ def check_iers_age():
     last_mjd = dat['MJD'][-1]
     last_date = Time(last_mjd, format='mjd', scale='utc')
     age = abs((Time.now() - last_date) + 365 * u.day)
-    if age.jd1 >= 30:
+    if age.value >= 15:
         MB_YESNO = 0x00000004  # Style for Yes and No buttons
         IDYES = 6              # Return value if Yes is clicked
         IDNO = 7               # Return value if No is clicked
@@ -485,7 +484,6 @@ class Our_Solar_System(Entity):
         self.jupiter_nearest.enabled = False
         self.saturn_nearest.enabled = False
         self.uranus_nearest.enabled = False
-
     def enable_data(self):
         self.time_now.enabled = True
         self.time_end.enabled = True
@@ -1067,4 +1065,5 @@ if __name__ == '__main__':
     window.color = color.black
     action = Our_Solar_System()
     app.run()
+
 
