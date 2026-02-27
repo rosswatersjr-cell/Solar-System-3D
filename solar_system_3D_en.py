@@ -811,7 +811,7 @@ class Our_Solar_System(Entity):
             for e in range(0,len(self.UTC_Time)):# de442s file is ~31 MB, and covers years 1950-2050
                 if name=="moon":
                     try:       
-                        moon_icrs=get_body(body="moon",time=self.UTC_Time[e],location=self.Earth_Location, ephemeris=solar_system_ephemeris.get())
+                        moon_icrs=get_body(body="moon",time=self.UTC_Time[e], ephemeris=solar_system_ephemeris.get())
                         data[e]=[np.double(moon_icrs.cartesian.x/self.de442_divisor), np.double(moon_icrs.cartesian.z/self.de442_divisor), 
                                 np.double(moon_icrs.cartesian.y/self.de442_divisor)]
                     except:
@@ -1085,3 +1085,4 @@ if __name__ == '__main__':
     window.color = color.black
     action = Our_Solar_System()
     app.run()
+
