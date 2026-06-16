@@ -2,7 +2,8 @@
 Our Solar System Using Ursina Game Engine and Astropy.
 There Are 2 Versions Of This Script (English And Spanish). 
 This Script Is Designed Using Python 3.14.6 And For Windows 11 Only.
-One Additional File Not Present Is Required (de442.bsp) And May Be Obtained Here. https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/. 
+One Additional File Not Present Is Required (de442.bsp) And May Be Obtained Here. https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/.
+The IERS-A And IERS-B Files Get Updated Every 15 Days If So Chosen. These Files Include finals200A.all and eopc04.1962-now. 
 Make Sure To Download The Correct File And Place de442.bsp In The Same Folder As The Script And All The .jpg Files.
 To Create An Executable Using auto-py-to-exe, Follow The Instructions Here. https://www.ursinaengine.org/building.html. 
 All Planetary Data Is Pre-Loaded Into Lists And Dictionaries Before The Animation Starts For Speed.
